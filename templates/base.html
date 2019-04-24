@@ -30,6 +30,21 @@
       }
     }
 
+    #outer-box-2 {
+      width: 90%;
+      height: 90%;
+      display:block;
+      margin-top: 5%;
+
+      #inner-box-2 {
+        height: 90%;
+        width: 90%;
+        position: absolute;
+        padding: 10%;
+        transition: opacity .5s;
+      }
+    }
+
     </style>
 
     <title>Portfolio Watcher</title>
@@ -41,9 +56,15 @@
       <div class="nav-wrapper" style="background-color: #216c2a;">
         <a href="/" class="brand-logo" style="padding-left: 15px">Portfolio Watcher</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
-          <li><a href="/">About</a></li>
+
+          {% if session and 'email' in session %}
+          <li><a href="portfolio">Portfolio</a></li>
+          <li><a href="transactions">Transactions</a></li>
+          <li><a href="logout">Logout</a></li>
+          {% else %}
           <li><a href="login">Login</a></li>
           <li><a href="register">Register</a></li>
+          {% endif %}
         </ul>
       </div>
     </nav>

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row">
+  <div class="col s6">
+    <div id="outer-box-2" class="container" style="background-color: rgba(33,60,42, 0.8);">
+      <div id="inner-box-2">
+        <h2 style="color: white">Portfolio ($value)</h2>
+      </div>
+    </div>
+  </div>
+  <div class="col s6">
+    <div id="outer-box-2" class="container" style="background-color: rgba(33,60,42, 0.8); margin-top: 30%">
+      <div id="inner-box-2">
+        <form name="transactions" action="/transactions" method="post">
+          <div class="row">
+            <div class="input-field col s12">
+              <input name="ticker" id="ticker" type="text" class="validate form-control" style="color: white" required>
+              <label for="ticker">Ticker</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12">
+              <input name="quantity" id="quantity" type="number" class="validate form-control" style="color: white" required>
+              <label for="quantity">Quantity</label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col s8">
+            </div>
+            <div class="button col s4">
+              <button class="form-group btn waves-effect waves-light" type="submit" name="action">Order
+                <i class="material-icons right">send</i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+</div>
+
+{% endblock %}
