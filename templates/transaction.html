@@ -5,11 +5,10 @@
   <div class="col s6">
     <div id="outer-box-2" class="container" style="background-color: rgba(33,60,42, 0.8);">
       <div id="inner-box-2" class="container">
-        <h3 style="color: white">Portfolio: ${{ user_portfolio_value }}</h2>
-        {% for holding in user_portfolio %}
+        <h3 style="color: white">Transactions:</h2>
+        {% for transaction in user_transactions %}
           <div class="row">
-            <h4 class="left col s8" style="{{ 'color: ' + holding[3] }}"> {{ "{} - {} shares".format(holding[0].upper(), holding[1])  }} </h4>
-            <h4 class="right col s4" style="{{ 'color: ' + holding[3] }}"> {{ "${}".format(holding[2])  }} </h4>
+            <h5 class="left col s8" style="color: white"> {{ "{}({}) - {} Shares @ {}".format(transaction[1].upper(), transaction[2].upper(), transaction[3], transaction[4]) }} </h4>
           </div>
         {% endfor %}
       </div>

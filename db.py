@@ -1,12 +1,12 @@
 from werkzeug import generate_password_hash, check_password_hash
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
+from datetime import datetime
 
 engine = create_engine('sqlite:///foo.db', echo=True)
-Session = sessionmaker(bind=engine)
-session = Session()
+session = scoped_session(sessionmaker(bind=engine))
 Base = declarative_base()
 
 class User(Base):
@@ -26,11 +26,11 @@ class Holding(Base):
 
      email = Column(String, primary_key=True)
      ticker = Column(String, primary_key=True)
-     quantity = Column(String)
+     quantity = Column(Integer)
 
      def __repr__(self):
          return "<Holding(email='%s', ticker='%s', quantity='%s')>" % (
-                self.email, self.name, self.quantity)
+                self.email, self.ticker, self.quantity)
 
 class Transaction(Base):
      __tablename__ = 'transactions'
@@ -39,11 +39,12 @@ class Transaction(Base):
      date_time = Column(String, primary_key=True)
      type = Column(String)
      ticker = Column(String)
-     quantity = Column(String)
+     quantity = Column(Integer)
+     amount = Column(String)
 
      def __repr__(self):
-         return "<Transaction(email='%s', date_time='%s', type='%s', ticker='%s', quantity='%s')>" % (
-                self.email, self.date_time, self.type, self.name, self.quantity)
+         return "<Transaction(email='%s', date_time='%s', type='%s', ticker='%s', quantity='%s', amount='%s')>" % (
+                self.email, self.date_time, self.type, self.ticker, self.quantity, self.amount)
 
 Base.metadata.create_all(engine)
 session.commit()
@@ -66,20 +67,63 @@ def authenticate_user(email, password):
         return False
     return check_password_hash(user.password_hash, password)
 
+def create_transaction(email, type, ticker, quantity, amount):
+    try:
+        session.add(Transaction(
+            email=email.lower(),
+            date_time=datetime.now(),
+            type=type,
+            ticker=ticker,
+            quantity=quantity,
+            amount=amount))
+        session.commit()
+        return True
+    except:
+        return False
+
 def get_user_cash(email):
     user = session.query(User).filter_by(email=email.lower()).first()
     if user == None:
         return False
-    return user.cash
+    retval = user.cash
+    user = None
+    return retval
 
-def get_user_holdings(email):
-    holdings = session.query(Holding).filter_by(email=email.lower()).all()
-    if holdings == None:
-        return False
-    return holdings
+def get_user_holdings(email, ticker=None):
+    if ticker:
+        holding = session.query(Holding).filter_by(email=email.lower()).filter_by(ticker=ticker).first()
+        return holding
+    else:
+        holdings = session.query(Holding).filter_by(email=email.lower()).all()
+        return holdings
 
 def get_user_transactions(email):
     transactions = session.query(Transaction).filter_by(email=email.lower()).all()
-    if transactions == None:
-        return False
     return transactions
+
+def update_user_cash(email, new_value):
+    user = session.query(User).filter_by(email=email.lower()).first()
+    if user == None:
+        return False
+    user.cash = new_value
+    session.commit()
+    return True
+
+def update_holding(email, ticker, quantity):
+    holding = get_user_holdings(email, ticker=ticker)
+    if holding == None:
+        try:
+            session.add(Holding(
+                email=email.lower(),
+                ticker=ticker,
+                quantity=quantity))
+            session.commit()
+            return True
+        except:
+            return False
+    else:
+        holding.quantity += quantity
+        if holding.quantity == 0:
+            session.delete(holding)
+        session.commit()
+        return True
